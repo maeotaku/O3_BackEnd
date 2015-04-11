@@ -7,56 +7,6 @@ import cv2
 import os 
 import math
 from scipy import ndimage
-#from skimage import measure
-#pip install -U scikit-image
-
-
-
-'''
-def combineImages(*args):
-    numImages = 0
-    imageArray = []
-    
-    for img in args:
-        if img != None and img.width > 0 and img.height > 0:
-            imageArray.append(img)
-            numImages += 1
-    
-    if numImages <= 0:
-        return None
-    
-    # Find the largest x and y dimensions out of all the images
-    # The resulting grid of images will all have this size, 
-    # whether or not the images fit (though they won't be scaled).
-    colWidth = max(imageArray, key=attrgetter('width')).width
-    rowHeight = max(imageArray, key=attrgetter('height')).height
-    
-    # Square-root of the number of images will tell us how big the
-    # sides of the square need to be. Ceiled to ensure they always
-    # all fit.
-    grid = int(math.ceil(math.sqrt(numImages)))
-    
-    combinedImage = cv2.CreateImage((colWidth*grid, rowHeight*grid), 8, 3)
-    
-    cv2.Set(combinedImage, cv2.CV_RGB(50,50,50));
-    
-    for index, img in enumerate(imageArray):
-        # Ensure all images are same type
-        if img.nChannels == 1:
-            colourImg = cv2.CreateImage((img.width, img.height), 8,3)
-            cv2.CvtColor(img, colourImg, cv2.CV_GRAY2RGB)
-            img = colourImg
-        
-        # Which grid square are we up to?
-        row = int(math.ceil(index / grid))
-        column = index % grid
-        
-        cv2.SetImageROI(combinedImage, (row*colWidth, column*rowHeight, img.width, img.height))
-        cv2.Copy(img, combinedImage)
-        cv2.ResetImageROI(combinedImage);
-    
-    return combinedImage
-'''
 
 def saveImage(name, img):
     cv2.imwrite(name,img)
@@ -178,16 +128,6 @@ def cleanStem(segImg, h, w):
     return segImg
 
 
-
-
-
-
-
-
-
-
-
-
 def pointIsInImageBorder(pointh, pointw, h, w):
     if (pointh<=10 or pointh>=h-10):
         return 1
@@ -267,26 +207,6 @@ def extractContours(segImg, checkImgBorders, h, w):
         raise ContoursException("No valid leaf found. Contours too small, most likely segmentation error.")
     t.stopAndPrint()
     return [maxi]
-        
-'''        
-def cutLeafSquare(img, contour):
-    
-    def check(n, k, maxi):
-        if n+k < 0:
-            return n
-        if n+k > maxi:
-            return n
-        return n+k
-    
-    h, w = getImageSizes(img)
-    ys = contour[:,1]
-    xs = contour[:,0]
-    x1 = check(min(xs), -10, w)
-    x2 = check(max(xs), 10, w)
-    y1 = check(min(ys), -10, h)
-    y2 = check(max(ys), 10, h)
-    return cutImage(img, y1, x1, y2, x2)
-'''
 
 def cutLeafSquare(img, contour):
     contour = np.array(contour)
@@ -309,6 +229,7 @@ def cutLeafSquare(img, contour):
 
 def normalizeLeafArea(img, contours, leafArea, newLeafArea):
     leafCutImg = cutLeafSquare(img, contours)
+    '''
     ar = getAspectRatio(leafCutImg)
     if ar > 1.0:
         leafCutImg = rotateImage(leafCutImg, 1)
@@ -323,97 +244,6 @@ def normalizeLeafArea(img, contours, leafArea, newLeafArea):
     x = abs((math.sqrt(4 * a * newImgArea)) / (2*a))
     newWidth = int(wGrowth * x)
     newHeight = int(hGrowth * x)
-    return resizeImage(leafCutImg, newWidth, newHeight) 
-
-
-
-def cleanShadows(img, h, w):
-    np.set_printoptions(threshold=np.nan)
-    b = img.astype(np.double)
-    #print(b)
-    
-    def log(x):
-        return math.log(x)
-    
-    def mini(x):
-        return min(x)
-    
-    def maxi(x):
-        return max(x)
-    
-    def exp(x):
-        return math.exp(x)
-    
-    def inti(x):
-        return int(x)
-    
-    log = np.vectorize(log)
-    exp = np.vectorize(exp)
-    mini = np.vectorize(mini)
-    maxi = np.vectorize(maxi)
-    inti = np.vectorize(inti)
-    
-    b[b == 0]=0.001
-    r_b = log(np.divide(b[:,:,0], b[:,:,2]))
-    g_b = log(np.divide(b[:,:,1], b[:,:,2]))  
-    
-    deg=51
-    rad = deg*(math.pi/180)
-    #print(rad)
-    inv = (math.cos(rad)*r_b) - (math.sin(rad)*g_b)
-    invexp = exp(inv)
-    #print(min(invexp.flatten()))
-    invexp=invexp - min(invexp.flatten())
-    #print(max(invexp.flatten()))
-    invexp= invexp*255 / max(invexp.flatten())
-    
-    x= (max(g_b.flatten()) + min(g_b.flatten())) / 2
-    c1 = g_b[g_b >= x]
-    c2 = g_b[g_b < x]
-    mc1=np.median(c1)
-    mc2=np.median(c2)
-    #print(x, mc1, mc2)
-    logresRG = np.ones((h, w), dtype=np.double)
-    logresBG = np.ones((h, w), dtype=np.double)
-    lol = np.zeros((h, w), dtype=np.double)
-    i=0
-    while i<h:
-        j=0
-        while j<w:
-            if g_b[i,j] >=x:
-                logresRG[i,j] = inv[i,j]*math.cos(-rad) + mc1*math.sin(-rad)
-                logresBG[i,j] = -inv[i,j]*math.sin(-rad) + mc1*math.cos(-rad)  
-                lol[i,j] = 255          
-            else:
-                logresRG[i,j] = inv[i,j]*math.cos(-rad) + mc2*math.sin(-rad)
-                logresBG[i,j] = -inv[i,j]*math.sin(-rad) + mc2*math.cos(-rad)
-            j+=1
-        i+=1                    
-    resRG = exp(logresRG)
-    resBG = exp(logresBG)
-    rgb = np.ones((h, w, 3), dtype=np.double)
-    
-    B = (3*invexp) / (resRG + resBG + 1)
-    B=B-min(B.flatten())
-    B=B/(max(B.flatten()))
-    
-    R = resRG * B
-    R=R-min(R.flatten())
-    R=R/(max(R.flatten()))
-    
-    G = resBG*B
-    G=G-min(G.flatten())
-    G=G/(max(G.flatten()))
-    
-    rgb[:,:,0] = (B/2)
-    rgb[:,:,1] = G
-    rgb[:,:,2] = R
-
-    
-    rgb = np.array(g_b*255).astype(np.uint8) #like black and white only
-    #equ = cv2.equalizeHist(rgb)
-    return rgb 
-    #thresh = 127
-    #ret = cv2.threshold(rgb, thresh, 255, cv2.THRESH_BINARY)[1]
-    #ret = cv2.adaptiveThreshold(rgb,255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_OTSU,11,2)
-    #return lol 
+    return resizeImage(leafCutImg, newWidth, newHeight)
+    '''
+    return leafCutImg 

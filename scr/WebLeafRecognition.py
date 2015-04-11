@@ -17,7 +17,7 @@ import os
 #from bottle import route, run, template, request
 from flask import Flask, render_template, request, url_for
 import jsonpickle
-
+import random
 
 #sudo pip install bottle
 #pip install -U jsonpickle
@@ -84,7 +84,8 @@ def do_upload():
 #run(host='localhost', port=9093)
 if __name__ == "__main__":         
     app.run(
-            port=int("6666")
+            host="0.0.0.0",
+            port=int("8080")
     )
 
 

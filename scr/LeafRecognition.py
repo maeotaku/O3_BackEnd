@@ -38,7 +38,6 @@ def saveImageObjs(folder, imagename, sample, histogramTypes):
       
 
 def buildHistogramFiles(path, histogramTypes, disks, circumferences):
-    #path = "/Users/maeotaku/Documents/Leaves/Flavia/Training/"
     speciesFolders = cleanHiddenFiles(getFolderContents(path))
     cont=1
     for folderName in speciesFolders:
@@ -65,86 +64,9 @@ if __name__ == '__main__':
     disks = generateDiskKernelsMasks(25) #used for naive
     circumferences = generateDiskCircumferenceKernelsMasks(25)
     #disks = generateDiskKernels(25) #used for complex curvature based on paper
-    
-    es = SpeciesImage(disks, circumferences, path="/Users/maeotaku/Documents/IMG_7240.JPG")    
+    es = SpeciesImage(disks, circumferences, path="/Users/maeotaku/Documents/OzoneTest.png")    
     es.showImages()
-    saveImageObjs("/Users/maeotaku/Documents/", "adfdsfsdf", es, [])
-    #buildHistogramFiles("/Users/maeotaku/Documents/DatasetsNon1/Flavia/", [C.HIST_HCoS, C.HIST_LBP_R1P8, C.HIST_LBP_R2P16, C.HIST_LBP_R3P16, C.HIST_LBP_R1P8_R2P16_CONCAT, C.HIST_LBP_R1P8_R3P16_CONCAT, C.HIST_LBP_R2P16_R3P16_CONCAT], disks, circumferences)
-    #buildHistogramFiles("/Users/maeotaku/Documents/DatasetsNon1/CostaRica/OnlyCamera/", [C.HIST_HCoS, C.HIST_LBP_R1P8, C.HIST_LBP_R2P16, C.HIST_LBP_R3P16, C.HIST_LBP_R1P8_R2P16_CONCAT, C.HIST_LBP_R1P8_R3P16_CONCAT, C.HIST_LBP_R2P16_R3P16_CONCAT], disks, circumferences)
-    #buildHistogramFiles("/Users/maeotaku/Documents/DatasetsNon1/CostaRica/ScannedClean/", [C.HIST_HCoS, C.HIST_LBP_R1P8, C.HIST_LBP_R2P16, C.HIST_LBP_R3P16, C.HIST_LBP_R1P8_R2P16_CONCAT, C.HIST_LBP_R1P8_R3P16_CONCAT, C.HIST_LBP_R2P16_R3P16_CONCAT], disks, circumferences)
-    #buildHistogramFiles("/Users/maeotaku/Documents/DatasetsNon1/LeafSnap/lab", [C.HIST_HCoS, C.HIST_LBP_R1P8, C.HIST_LBP_R2P16, C.HIST_LBP_R3P16, C.HIST_LBP_R1P8_R2P16_CONCAT, C.HIST_LBP_R1P8_R3P16_CONCAT, C.HIST_LBP_R2P16_R3P16_CONCAT], disks, circumferences)
-    '''
-    runs = MultipleRuns("_Flavia",
-                        "/Users/maeotaku/Documents/DatasetsNon1/Flavia/",
-                        "/Users/maeotaku/Documents/DatasetsNon1/Flavia/",
-                        "/Users/maeotaku/Dropbox/MSc TEC/Tesis2/Experiments/",
-                        ( C.HIST_HCoS, C.HIST_LBP_R1P8, C.HIST_LBP_R2P16, C.HIST_LBP_R3P16, C.HIST_LBP_R1P8_R2P16_CONCAT, C.HIST_LBP_R1P8_R3P16_CONCAT, C.HIST_LBP_R2P16_R3P16_CONCAT, (C.HIST_HCoS, C.HIST_LBP_R1P8_R3P16_CONCAT)),
-                        #numberRuns=10,
-                        maxk=10)
-                        #trainingPerc=0.80)
-    runs.buildRuns()
-    runs.generateExcel()
-    '''
-    '''
-    runs = MultipleRuns("_LeafSnapFieldCut",
-                        "/Users/maeotaku/Documents/DatasetsNon1/LeafSnapCut/field/",
-                        "/Users/maeotaku/Documents/DatasetsNon1/LeafSnapCut/field/",
-                        "/Users/maeotaku/Dropbox/MSc TEC/Tesis2/Experiments/",
-                        ( C.HIST_HCoS, C.HIST_LBP_R1P8, C.HIST_LBP_R2P16, C.HIST_LBP_R3P16, C.HIST_LBP_R1P8_R2P16_CONCAT, C.HIST_LBP_R1P8_R3P16_CONCAT, C.HIST_LBP_R2P16_R3P16_CONCAT, (C.HIST_HCoS, C.HIST_LBP_R1P8_R3P16_CONCAT)),
-                        #numberRuns=10,
-                        maxk=10)
-                        #trainingPerc=0.80)
-    runs.buildRuns()
-    runs.generateExcel()
-    '''
-    '''
-    runs = MultipleRuns("_LeafSnapLab",
-                        "/Users/maeotaku/Documents/DatasetsNon1/LeafSnap/lab/",
-                        "/Users/maeotaku/Documents/DatasetsNon1/LeafSnap/lab/",
-                        "/Users/maeotaku/Dropbox/MSc TEC/Tesis2/Experiments/",
-                        ( C.HIST_HCoS, C.HIST_LBP_R1P8, C.HIST_LBP_R2P16, C.HIST_LBP_R3P16, C.HIST_LBP_R1P8_R2P16_CONCAT, C.HIST_LBP_R1P8_R3P16_CONCAT, C.HIST_LBP_R2P16_R3P16_CONCAT, (C.HIST_HCoS, C.HIST_LBP_R1P8_R3P16_CONCAT)),
-                        #numberRuns=10,
-                        maxk=10)
-                        #trainingPerc=0.80)
-    runs.buildRuns()
-    runs.generateExcel()
-    '''
-    '''
-    runs = MultipleRuns("_CostaRicaOnlyCamera",
-                        "/Users/maeotaku/Documents/DatasetsNon1/CostaRica/OnlyCamera/",
-                        "/Users/maeotaku/Documents/DatasetsNon1/CostaRica/OnlyCamera/",
-                        "/Users/maeotaku/Dropbox/MSc TEC/Tesis2/Experiments/",
-                        ( C.HIST_HCoS, C.HIST_LBP_R1P8, C.HIST_LBP_R2P16, C.HIST_LBP_R3P16, C.HIST_LBP_R1P8_R2P16_CONCAT, C.HIST_LBP_R1P8_R3P16_CONCAT, C.HIST_LBP_R2P16_R3P16_CONCAT, (C.HIST_HCoS, C.HIST_LBP_R1P8_R3P16_CONCAT)),
-                        #numberRuns=10,
-                        maxk=10)
-                        #trainingPerc=0.80)
-    runs.buildRuns()
-    runs.generateExcel()
-    '''
-    '''
-    runs = MultipleRuns("_CostaRicaScannedClean",
-                        "/Users/maeotaku/Documents/DatasetsNon1/CostaRica/ScannedClean/",
-                        "/Users/maeotaku/Documents/DatasetsNon1/CostaRica/ScannedClean/",
-                        "/Users/maeotaku/Dropbox/MSc TEC/Tesis2/Experiments/",
-                        ( C.HIST_HCoS, C.HIST_LBP_R1P8, C.HIST_LBP_R2P16, C.HIST_LBP_R3P16, C.HIST_LBP_R1P8_R2P16_CONCAT, C.HIST_LBP_R1P8_R3P16_CONCAT, C.HIST_LBP_R2P16_R3P16_CONCAT, (C.HIST_HCoS, C.HIST_LBP_R1P8_R3P16_CONCAT)),
-                        #numberRuns=10,
-                        maxk=10)
-                        #trainingPerc=0.80)
-    runs.buildRuns()
-    runs.generateExcel()
-    '''
-    '''
-    runs = MultipleRuns("_CostaRicaBoth",
-                        "/Users/maeotaku/Documents/DatasetsNon1/CostaRica/ScannedClean/",
-                        "/Users/maeotaku/Documents/DatasetsNon1/CostaRica/OnlyCamera/",
-                        "/Users/maeotaku/Dropbox/MSc TEC/Tesis2/Experiments/",
-                        ( C.HIST_HCoS, C.HIST_LBP_R1P8, C.HIST_LBP_R2P16, C.HIST_LBP_R3P16, C.HIST_LBP_R1P8_R2P16_CONCAT, C.HIST_LBP_R1P8_R3P16_CONCAT, C.HIST_LBP_R2P16_R3P16_CONCAT, (C.HIST_HCoS, C.HIST_LBP_R1P8_R3P16_CONCAT)),
-                        #numberRuns=10,
-                        maxk=10)
-                        #trainingPerc=0.80)
-    runs.buildRuns()
-    runs.generateExcel()
-    '''
+    #saveImageObjs("/Users/maeotaku/Documents/", "adfdsfsdf", es, [])
     print("Done") 
     cv2.waitKey()
     
