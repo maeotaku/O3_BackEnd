@@ -14,10 +14,14 @@ from scipy import ndimage, interpolate, signal as sg
 import cv2
 import numpy as np
 import os
-from bottle import route, run, template, request
+#from bottle import route, run, template, request
+from flask import Flask, render_template, request, url_for
 import jsonpickle
+
+
 #sudo pip install bottle
 #pip install -U jsonpickle
+#sudo pip install flask
 
 '''
 print(os.path.dirname(template.__file__))
@@ -50,8 +54,12 @@ dataset.load(C.HIST_HCoS, "/Users/maeotaku/Documents/DatasetsNon1/CostaRica/Only
 finder = FindK(dataset, C.KNN_DEFAULT, disks, circumferences)
 print("Done.")
 
+application = Flask(__name__)
+app = application
 
-@route('/', method='POST')
+
+#@route('/', method='POST')
+@app.route("/", methods=['POST'])  
 def do_upload():
     try:
         aux = ""
@@ -59,8 +67,8 @@ def do_upload():
         for name in files:
             fileUpload = files[name]
             if fileUpload:
-                file = fileUpload.file
-                img = cv2.imdecode(getNPFromFile(file), cv2.CV_LOAD_IMAGE_UNCHANGED) # This is dangerous for big files
+                #file = fileUpload.file
+                img = cv2.imdecode(getNPFromFile(fileUpload), cv2.CV_LOAD_IMAGE_UNCHANGED) # This is dangerous for big files
                 #img = loadImage("/Users/maeotaku/Documents/Issues/Solved/WrongResize_IMG_6632.JPG")
                 results = finder.find(img, C.HIST_HCoS)
                 aux += parseResults(results) + "\n"
@@ -73,7 +81,11 @@ def do_upload():
         return "Exception: " + traceback.format_exc()
     return "No classification done."
 
-run(host='localhost', port=9093)
+#run(host='localhost', port=9093)
+if __name__ == "__main__":         
+    app.run(
+            port=int("6666")
+    )
 
 
     
