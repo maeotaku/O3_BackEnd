@@ -19,32 +19,7 @@ class Curvature():
     def binarize(self, M):
         _, MM = cv2.threshold(M, 10, 255, cv2.THRESH_BINARY_INV)
         return (MM / 255.0)
-    '''
-    def pointIsInImageBorder(self, pointh, pointw, h, w):
-            if (pointh<=1 or pointh>=h-1):
-                return 1
-            if (pointw<=1 or pointw>=w-1):
-                return 1
-            return 0
-    def calculateIntersectionWithImageBorder(self, contour, h, w):
-        ws = contour[:,0]
-        hs = contour[:,1]
-        pointIsInImageBorder = np.vectorize(self.pointIsInImageBorder)
-        inters = np.sum(pointIsInImageBorder(hs, ws, h, w))
-        if inters>0:
-            return True
-        return False
 
-    def distanceFromPointToPoint(self, pointh, pointw, toh, tow): 
-            return math.sqrt(math.pow(pointw - tow,2) + math.pow(pointw - toh,2))
-    def distanceContourToCenter(self, contour, centerh, centerw):
-        n = len(contour)
-        ws = contour[:,0]
-        hs = contour[:,1]
-        distanceFromPointToPoint = np.vectorize(self.distanceFromPointToPoint)
-        return np.sum(distanceFromPointToPoint(hs, ws, centerh, centerw)) / n
-    '''
-    
     #used to draw in the image the area calculated, given an specific point of the boundary
     #not used normally only to show hw the disk area is drawn
     def drawDiskMaskInImg(self, img, mask, maskcenter, row, col):

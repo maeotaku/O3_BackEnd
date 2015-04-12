@@ -65,10 +65,6 @@ class SpeciesImage(object):
                 cluster2freq+=self.freqByCluster[key]
                 if self.distanceByCluster[key]< cluster2min:
                     cluster2min = self.distanceByCluster[key]
-        print(cluster1freq)
-        print(cluster2freq)
-        print(cluster1min)
-        print(cluster2min)
         totalArea = cluster1freq + cluster2freq
         if cluster1min < cluster2min:
             self.injuryPercentage = float(cluster1freq) / float(totalArea)
@@ -113,17 +109,12 @@ class SpeciesImage(object):
 
     
     def superPixels(self, img):
-        segments = slic(img, n_segments = 100000, sigma = 6, convert2lab = True)
+        segments = slic(img, n_segments = 1000, sigma = 10, convert2lab = True)
         x = np.asarray(segments).reshape(-1)
         y = np.bincount(x)
         ii = np.nonzero(y)[0]
         self.freqByCluster = dict(zip(ii,y))
         self.colorByCluster = {}
-        #print(freqByCluster)
-        
-        #showImage(mark_boundaries(img, segments),"fgfg")
-        #cv2.waitKey()
-        
         for y in range(0, self.h):
             for x in range(0, self.w):
                 key = segments[y,x]
@@ -147,6 +138,7 @@ class SpeciesImage(object):
         showImage(self.segImg, "Segmented Binary")
         showImage(self.resizedLeafImg, "Segmented ")
         showImage(self.resultImg, "Injury detected Img ")
+        showImage(mark_boundaries(self.original, self.componentsImg),"Segments")
         #showImage(self.injuryMask, "Injuries ")
         #showImage(self.sv, "Saturation/Value " + self.path)
         #showImage(self.finalSegImg, "Segmented " + self.path)

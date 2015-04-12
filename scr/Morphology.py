@@ -25,21 +25,7 @@ def toHSV(img):
 
 def toSV(img): 
     hsv = toHSV(img)
-    #s = cleanShadows(hsv, 525, 700)
-    #showImage(s, "shadows")
-    #cv2.waitKey()
-    #hsv[:,:,0] = 0 #works better with shadows
-    #saveImage("/Users/maeotaku/Documents/H.png", hsv[:,:,0])
-    #saveImage("/Users/maeotaku/Documents/S.png", hsv[:,:,1])
-    #saveImage("/Users/maeotaku/Documents/V.png", hsv[:,:,2])
-    #saveImage("/Users/maeotaku/Documents/HSV.png", img)
-    #cv2.waitKey()
-    #return hsv[:,:,2]
-    
     return hsv[:,:,[1,2]] #get rid of hue
-
-    
-    #return hsv[:,:,2] #only one channel
 
 def split_HSV(hsv_img):
     h, s, v = cv2.split(hsv_img)
@@ -229,7 +215,6 @@ def cutLeafSquare(img, contour):
 
 def normalizeLeafArea(img, contours, leafArea, newLeafArea):
     leafCutImg = cutLeafSquare(img, contours)
-    '''
     ar = getAspectRatio(leafCutImg)
     if ar > 1.0:
         leafCutImg = rotateImage(leafCutImg, 1)
@@ -245,5 +230,3 @@ def normalizeLeafArea(img, contours, leafArea, newLeafArea):
     newWidth = int(wGrowth * x)
     newHeight = int(hGrowth * x)
     return resizeImage(leafCutImg, newWidth, newHeight)
-    '''
-    return leafCutImg 
