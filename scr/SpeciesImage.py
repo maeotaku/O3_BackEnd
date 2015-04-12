@@ -19,15 +19,13 @@ from colormath.color_diff import delta_e_cie2000
 class SpeciesImage(object):
 
     def __init__(self, path="", inputImg=None):
-        self.lol = 0
-        self.lol2 = 0
-        self.lol3 = 0
+        self.injuryPercentage = 0
         self.colorByCluster = {}
         self.distanceByCluster = {}
         self.freqByCluster = {}
         self.injuryByCluster = {}
         self.path = path
-        if inputImg==None:
+        if inputImg==None and path!="":
             self.originalSize = loadImage(path)
         else:
             self.originalSize = inputImg
@@ -36,51 +34,61 @@ class SpeciesImage(object):
         self.grayImg = toGray(self.original)
         self.sv = toSV(self.original)
         self.em = self.trainEM(resizeImage(self.sv, 160, 120), 160, 120)
-        
+
         self.pixelDict = {}
         self.segImg = self.getLeafPixels(self.sv, self.h, self.w, self.grayImg) #get segmentatiuon in white
-        #self.segImg = cleanStem(self.segImg, self.h, self.w)
-        
-        
         self.newRGB = self.ApplyMaskToRGB(self.original, self.segImg, self.w, self.h)
         self.resizedLeafImg = self.grayImg*self.segImg
-        
-        
-        #self.em = self.trainEMInjury(resizeImage(self.resizedLeafImg, 160, 120), 160, 120)
-        #self.injuryMask = self.getInjuryPixels(self.resizedLeafImg, self.h, self.w, self.grayImg)
-        #self.injuryMask = self.injuryMask *  255
-        
         
         self.componentsImg = self.superPixels(self.newRGB)
         self.pixelDict = {}
         self.trainEMInjury()
         self.injuryByCluster = self.getInjuryPixels()
         #self.injuryMask = self.createInjuryMask(self.componentsImg);
-        
         #self.resultImg = self.ApplyMaskToRGB(self.original, self.injuryMask, self.w, self.h)
         self.resultImg = self.applyInjuryMask(self.componentsImg, self.original)
-        
-        #self.contoursImg = normalizeLeafArea(self.original, segmentContours, area, C.STANDARD_LEAF_AREA)
-        #self.finalSegImg = normalizeLeafArea(self.segImg, segmentContours, area, C.STANDARD_LEAF_AREA)
+
+    def GetInjuryPercentage(self):
+        return self.injuryPercentage
     
-    #creates a mask for injuries of the leaf
-    def createInjuryMask(self, componentsImg):
-        h = self.h
-        w = self.w
-        mask = np.zeros((h,w), 'uint8')
-        for y in range(0, h):
-            for x in range(0, w):
-                if componentsImg[y,x] in self.injuryByCluster and self.injuryByCluster[componentsImg[y,x]]==True:
-                    mask[y,x] = 1
-        return mask
+    def calculateInjuryPercentage(self):
+        cluster1freq = 0
+        cluster1min = 100
+        cluster2freq = 0
+        cluster2min = 100
+        for key, value in self.injuryByCluster.iteritems():
+            if value: #cluster1=True
+                cluster1freq+=self.freqByCluster[key]
+                if self.distanceByCluster[key]< cluster1min:
+                    cluster1min = self.distanceByCluster[key]
+            else:
+                cluster2freq+=self.freqByCluster[key]
+                if self.distanceByCluster[key]< cluster2min:
+                    cluster2min = self.distanceByCluster[key]
+        print(cluster1freq)
+        print(cluster2freq)
+        print(cluster1min)
+        print(cluster2min)
+        totalArea = cluster1freq + cluster2freq
+        if cluster1min < cluster2min:
+            self.injuryPercentage = float(cluster1freq) / float(totalArea)
+            return True
+        else:
+            self.injuryPercentage = float(cluster2freq) / float(totalArea)
+            return False
+            
+        
+            
+        
     
     def applyInjuryMask(self, componentsImg, rgbImg):
+        injuryBoolean = self.calculateInjuryPercentage()
         h = self.h
         w = self.w
         newRGB = rgbImg.copy();
         for y in range(0, h):
             for x in range(0, w):
-                if componentsImg[y,x] in self.injuryByCluster and self.injuryByCluster[componentsImg[y,x]]==True:
+                if componentsImg[y,x] in self.injuryByCluster and self.injuryByCluster[componentsImg[y,x]]==injuryBoolean:
                     newRGB[y,x] = np.array([0,0,255])
         return newRGB
                 
@@ -105,20 +113,11 @@ class SpeciesImage(object):
 
     
     def superPixels(self, img):
-        segments = slic(img, n_segments = 50000, sigma = 6, convert2lab = True)
-        #print(segments)
-        #print(np.size(segments))
-        # show the output of SLIC
-        '''
-        fig = plt.figure("Superpixels -- %d segments" % (numSegments))
-        ax = fig.add_subplot(1, 1, 1)
-        ax.imshow(mark_boundaries(img, segments))
-        plt.axis("off")
-        '''
+        segments = slic(img, n_segments = 100000, sigma = 6, convert2lab = True)
         x = np.asarray(segments).reshape(-1)
         y = np.bincount(x)
         ii = np.nonzero(y)[0]
-        self.freqByCluster = zip(ii,y[ii])
+        self.freqByCluster = dict(zip(ii,y))
         self.colorByCluster = {}
         #print(freqByCluster)
         
@@ -141,26 +140,17 @@ class SpeciesImage(object):
             color2_rgb = sRGBColor(float(value[0])/255, float(value[1])/255, float(value[2])/255)
             color2_lab = convert_color(color2_rgb, LabColor)
             self.distanceByCluster[key] = delta_e_cie2000(color1_lab, color2_lab);
-        
         return segments
         
-    
-
     def showImages(self):
         showImage(self.original, "Original ")
         showImage(self.segImg, "Segmented Binary")
         showImage(self.resizedLeafImg, "Segmented ")
         showImage(self.resultImg, "Injury detected Img ")
         #showImage(self.injuryMask, "Injuries ")
-        
-        #showImage(self.shadowLessImg, "Shadowless " + self.path)
         #showImage(self.sv, "Saturation/Value " + self.path)
         #showImage(self.finalSegImg, "Segmented " + self.path)
         #showImage(self.grayImg, "Segmented " + self.path)
-        #showImage(self.contoursImg, "Contour " + self.path)
-        #showImage(self.venation.lbpR2P16pic, "Veins " + self.path)
-        #showImage(self.venation.lbpR1P8pic, "LBPR1P8")
-        #showImage(self.venation.lbpR3P16pic, "LBPR3P16")
     
     def trainEM(self, img, w, h):
         print('Training EM...')
@@ -214,8 +204,6 @@ class SpeciesImage(object):
         segImg = segImg.astype(np.uint8)        
         
         return segImg
-    
-
 
     def trainEMInjury(self):
         print('Training EM for Injuries...')
@@ -236,11 +224,4 @@ class SpeciesImage(object):
         print("Predicting Injuries...")
         for key, sample in self.distanceByCluster.iteritems():
             self.predictInjury(sample, key)
-        '''
-        print(self.pixelDict)
-        
-        for value in self.pixelDict.values():
-            if value==False:
-                print(value)
-        '''
         return self.pixelDict
