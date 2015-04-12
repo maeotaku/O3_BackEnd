@@ -169,14 +169,14 @@ class SpeciesImage(object):
         
     def showImages(self):
         showImage(self.original, "Original ")
-        #showImage(self.segImg, "Segmented Binary")
+        showImage(self.segImg, "Segmented Binary")
         #showImage(self.resizedLeafImg, "Segmented ")
         showImage(self.resultImg, "Injury detected Img ")
-        #showImage(mark_boundaries(self.original, self.componentsImg),"Segments")
+        showImage(mark_boundaries(self.original, self.componentsImg),"Segments")
         #showImage(self.injuryMask, "Injuries ")
         #showImage(self.sv, "Saturation/Value " + self.path)
         #showImage(self.finalSegImg, "Segmented " + self.path)
-        #showImage(self.grayImg, "Segmented " + self.path)
+        showImage(self.grayImg, "Segmented " + self.path)
     
     def trainEM(self, img, w, h):
         print('Training EM...')

@@ -8,6 +8,8 @@ import random
 import json
 import base64
 from Morphology import *
+from OzoneDB import *
+import json
 '''
 from Files import *
 from Label import *
@@ -29,9 +31,10 @@ from flask import Flask, render_template, request, url_for
 application = Flask(__name__)
 app = application
 
+
 def getNPFromFile(f):
     #return np.asarray(bytearray(f.read()), dtype=np.uint8)
-    filename = 'in_some_image'  # I assume you have a way of picking unique filenames
+    filename = 'in_some_image.jpg'  # I assume you have a way of picking unique filenames
     with open(filename, 'wb') as fi:
         fi.write(f)
     return loadImage(filename)
@@ -39,17 +42,22 @@ def getNPFromFile(f):
     
 def setFileFromNP(arr):
     #return np.asarray(bytearray(f.read()), dtype=np.uint8)
-    filename = 'out_some_image'  # I assume you have a way of picking unique filenames
+    filename = 'out_some_image.jpg'  # I assume you have a way of picking unique filenames
     saveImage(filename, arr)
     file = open(filename, 'r')
     stream = file.read()
     return base64.b64encode(stream)
-     
+    
 application = Flask(__name__)
 app = application
+print("Setting up ozone database")
+ozone = loadOzoneDB()
+ozoneDict = jsonDBtoDict(ozone)
+ozoneDictKeys = sorted(ozoneDict.keys())
 
 @app.route("/", methods=['POST'])  
 def do_upload():
+    
     data = {}    
     try:
         '''
@@ -58,16 +66,20 @@ def do_upload():
             fileUpload = files[name]
         '''
         image = request.form['image']
+        if "latitude" in request.form:
+            latitute = request.form["latitude"]
+            if "longitude" in request.form:
+                longitude = request.form["longitude"]
+                factor = searchFactor(latitude, longitude, ozoneDict, ozoneDictKeys)
+                data["ozone_factor"] = factor#random.uniform(0,1)
+        
         fileUpload = base64.decodestring(image)
         if fileUpload:
-            #file = fileUpload.file
-            #img = cv2.imdecode(getNPFromFile(fileUpload), cv2.CV_LOAD_IMAGE_UNCHANGED) # This is dangerous for big files
             img = getNPFromFile(fileUpload) # This is dangerous for big files
-            #random.uniform(0,1)
-            #data["InjuryDetectedImage"] = Image.fromarray(img)
             s = SpeciesImage(path=None, inputImg=img)
             data["damage_percentage"] = s.GetInjuryPercentage()
             data["result_image"] =  setFileFromNP(s.resultImg)
+            
         json_data = json.dumps(data)
         return json_data
 
