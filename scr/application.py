@@ -36,6 +36,14 @@ def getNPFromFile(f):
         fi.write(f)
     return loadImage(filename)
     #return np.frombuffer(f,dtype=np.float64)
+    
+def setFileFromNP(arr):
+    #return np.asarray(bytearray(f.read()), dtype=np.uint8)
+    filename = 'some_image.jpg'  # I assume you have a way of picking unique filenames
+    saveImage(filename, arr)
+    file = open(filename, 'r')
+    stream = file.read()
+    return base64.b64encode(stream)
      
 application = Flask(__name__)
 app = application
@@ -53,12 +61,13 @@ def do_upload():
         fileUpload = base64.decodestring(image)
         if fileUpload:
             #file = fileUpload.file
-            img = cv2.imdecode(getNPFromFile(fileUpload), cv2.CV_LOAD_IMAGE_UNCHANGED) # This is dangerous for big files
+            #img = cv2.imdecode(getNPFromFile(fileUpload), cv2.CV_LOAD_IMAGE_UNCHANGED) # This is dangerous for big files
+            img = getNPFromFile(fileUpload) # This is dangerous for big files
             #random.uniform(0,1)
             #data["InjuryDetectedImage"] = Image.fromarray(img)
-            s = SpeciesImage(None, img)
-            data["damage_percentage"] = es.GetInjuryPercentage()
-            data["reuslt_image"] =  base64.decodestring(es.resultImage)
+            s = SpeciesImage(path=None, inputImg=img)
+            data["damage_percentage"] = s.GetInjuryPercentage()
+            data["result_image"] =  setFileFromNP(s.resultImg)
         json_data = json.dumps(data)
         return json_data
 

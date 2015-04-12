@@ -18,14 +18,14 @@ from colormath.color_diff import delta_e_cie2000
 
 class SpeciesImage(object):
 
-    def __init__(self, path="", inputImg=None):
+    def __init__(self, path=None, inputImg=None):
         self.injuryPercentage = 0
         self.colorByCluster = {}
         self.distanceByCluster = {}
         self.freqByCluster = {}
         self.injuryByCluster = {}
         self.path = path
-        if inputImg==None and path!="":
+        if inputImg==None and path!=None:
             self.originalSize = loadImage(path)
         else:
             self.originalSize = inputImg
