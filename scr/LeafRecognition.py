@@ -10,10 +10,13 @@ import os
 from Disk import *
 
 if __name__ == '__main__':
-    es = SpeciesImage(path="/Users/maeotaku/Documents/OzoneTest4.png")    
-    es.showImages()
-    print(es.GetInjuryPercentage())
+    lol = ["/Users/maeotaku/Documents/OzoneTest.png","/Users/maeotaku/Documents/OzoneTest2.png", "/Users/maeotaku/Documents/OzoneTest3.png", "/Users/maeotaku/Documents/OzoneTest4.png", "/Users/maeotaku/Documents/OzoneTest5.png", "/Users/maeotaku/Documents/OzoneTest6.png", "/Users/maeotaku/Documents/OzoneTest7.png"]
+    for name in lol:
+        es = SpeciesImage(path=name)    
+        es.showImages()
+        print(es.GetInjuryPercentage())
+        cv2.waitKey()
     #saveImageObjs("/Users/maeotaku/Documents/", "adfdsfsdf", es, [])
     print("Done") 
-    cv2.waitKey()
+    
     

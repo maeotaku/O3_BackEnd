@@ -5,7 +5,7 @@ from Morphology import *
 #from Log import Log
 import Constants as C
 from cv2 import EM
-
+import operator
 from skimage.segmentation import slic
 from skimage.segmentation import mark_boundaries
 from skimage.util import img_as_float
@@ -109,19 +109,53 @@ class SpeciesImage(object):
 
     
     def superPixels(self, img):
-        segments = slic(img, n_segments = 50000, sigma = 6, enforce_connectivity=True)
+        segments = slic(img, n_segments = 15000, sigma = 3, enforce_connectivity=True)
         x = np.asarray(segments).reshape(-1)
         y = np.bincount(x)
         ii = np.nonzero(y)[0]
         self.freqByCluster = dict(zip(ii,y))
         self.colorByCluster = {}
+        
+        freqOfColorByCluster = {}
         for y in range(0, self.h):
             for x in range(0, self.w):
                 key = segments[y,x]
                 if img[y,x].all() > 0:
+                    '''
+                    colorTuple = img[y,x].tostring()
+                    if not key in freqOfColorByCluster:
+                        freqOfColorByCluster[key] = {colorTuple:1}
+                    else:
+                        if not colorTuple in freqOfColorByCluster[key]:
+                            freqOfColorByCluster[key][colorTuple] = 1
+                        else:
+                            freqOfColorByCluster[key][colorTuple] += 1
+                    '''
                     if not key in self.colorByCluster:
-                        self.colorByCluster[key] = img[y,x]
-        
+                        self.colorByCluster[key] = np.float32(img[y,x])
+                    #else:
+                    #    self.colorByCluster[key] = self.colorByCluster[key] + np.float32(img[y,x])
+        '''
+        for key, value in freqOfColorByCluster.iteritems():
+            maxi = max(freqOfColorByCluster.iteritems(), key=operator.itemgetter(1))[0]
+            self.colorByCluster[key] = np.array(maxi)
+        '''
+        '''
+        for key, value in self.colorByCluster.iteritems():
+            freq = self.freqByCluster[key]
+            self.colorByCluster[key] = np.float32(value / np.array([freq, freq, freq]));
+        '''
+        '''
+        tempsegments = np.vstack(segments)
+        temp = np.vstack(img)
+        pos=0
+        for value in temp:
+            if value.all() > 0:
+                if not tempsegments[pos] in self.colorByCluster:
+                    self.colorByCluster[tempsegments[pos]] = value
+                    pos+=1
+        '''
+         
         color1_rgb = sRGBColor(0, 1.0, 0)
         color1_lab = convert_color(color1_rgb, LabColor)
         self.distanceByCluster = {}
@@ -135,10 +169,10 @@ class SpeciesImage(object):
         
     def showImages(self):
         showImage(self.original, "Original ")
-        showImage(self.segImg, "Segmented Binary")
-        showImage(self.resizedLeafImg, "Segmented ")
+        #showImage(self.segImg, "Segmented Binary")
+        #showImage(self.resizedLeafImg, "Segmented ")
         showImage(self.resultImg, "Injury detected Img ")
-        showImage(mark_boundaries(self.original, self.componentsImg),"Segments")
+        #showImage(mark_boundaries(self.original, self.componentsImg),"Segments")
         #showImage(self.injuryMask, "Injuries ")
         #showImage(self.sv, "Saturation/Value " + self.path)
         #showImage(self.finalSegImg, "Segmented " + self.path)

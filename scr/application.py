@@ -31,7 +31,7 @@ app = application
 
 def getNPFromFile(f):
     #return np.asarray(bytearray(f.read()), dtype=np.uint8)
-    filename = 'some_image.jpg'  # I assume you have a way of picking unique filenames
+    filename = 'in_some_image'  # I assume you have a way of picking unique filenames
     with open(filename, 'wb') as fi:
         fi.write(f)
     return loadImage(filename)
@@ -39,7 +39,7 @@ def getNPFromFile(f):
     
 def setFileFromNP(arr):
     #return np.asarray(bytearray(f.read()), dtype=np.uint8)
-    filename = 'some_image.jpg'  # I assume you have a way of picking unique filenames
+    filename = 'out_some_image'  # I assume you have a way of picking unique filenames
     saveImage(filename, arr)
     file = open(filename, 'r')
     stream = file.read()
