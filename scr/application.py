@@ -1,6 +1,12 @@
-'''
+
 import traceback
 from SpeciesImage import SpeciesImage
+import cv2
+import numpy as np
+import os
+import random
+import json
+'''
 from Files import *
 from Label import *
 from Morphology import *
@@ -12,9 +18,6 @@ from Data.DataSetSeparate import *
 from Disk import *
 from Exceptions.CustomException import ContoursException
 from scipy import ndimage, interpolate, signal as sg
-import cv2
-import numpy as np
-import os
 #from bottle import route, run, template, request
 import jsonpickle
 import random
@@ -24,9 +27,34 @@ from flask import Flask, render_template, request, url_for
 application = Flask(__name__)
 app = application
 
-@app.route("/")     
-def hello():         
-    return "Hello World!"
+def getNPFromFile(f):
+    return np.asarray(bytearray(f.read()), dtype=np.uint8)
+     
+application = Flask(__name__)
+app = application
+
+@app.route("/", methods=['POST'])  
+def do_upload():
+    data = {}    
+    try:
+        files = request.files
+        for name in files:
+            fileUpload = files[name]
+            if fileUpload:
+                #file = fileUpload.file
+                img = cv2.imdecode(getNPFromFile(fileUpload), cv2.CV_LOAD_IMAGE_UNCHANGED) # This is dangerous for big files
+                data["DamagePercentage"] = random.uniform(0,1)
+                #data["InjuryDetectedImage"] = Image.fromarray(img)
+                data["Height"] = len(img[0])
+                data["Width"] = len(img)
+                #s = SpeciesImage(None, img)
+        json_data = json.dumps(data)
+        return json_data
+
+    except Exception as e:
+        print(e)
+        return "Exception: " + traceback.format_exc()
+    return "No classification done."
 
 if __name__ == "__main__":         
     app.run(

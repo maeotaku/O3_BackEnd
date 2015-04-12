@@ -8,6 +8,9 @@ sudo pip install scipy
 sudo pip install numpy 
 sudo pip install matplotlib
 
+SuperPixel
+http://www.pyimagesearch.com/2014/07/28/a-slic-superpixel-tutorial-using-python/
+
 
  OpenCV 2.4.8.2
 Installing brew is simpler than you think, just run this in terminal:
