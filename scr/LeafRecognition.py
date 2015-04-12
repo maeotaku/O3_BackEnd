@@ -10,7 +10,7 @@ import os
 from Disk import *
 
 if __name__ == '__main__':
-    es = SpeciesImage(path="/Users/maeotaku/Documents/OzoneTest6.png")    
+    es = SpeciesImage(path="/Users/maeotaku/Documents/OzoneTest4.png")    
     es.showImages()
     print(es.GetInjuryPercentage())
     #saveImageObjs("/Users/maeotaku/Documents/", "adfdsfsdf", es, [])

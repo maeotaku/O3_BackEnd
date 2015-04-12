@@ -109,7 +109,7 @@ class SpeciesImage(object):
 
     
     def superPixels(self, img):
-        segments = slic(img, n_segments = 1000, sigma = 10, convert2lab = True)
+        segments = slic(img, n_segments = 50000, sigma = 6, enforce_connectivity=True)
         x = np.asarray(segments).reshape(-1)
         y = np.bincount(x)
         ii = np.nonzero(y)[0]
@@ -122,7 +122,7 @@ class SpeciesImage(object):
                     if not key in self.colorByCluster:
                         self.colorByCluster[key] = img[y,x]
         
-        color1_rgb = sRGBColor(1.0, 1.0, 1.0)
+        color1_rgb = sRGBColor(0, 1.0, 0)
         color1_lab = convert_color(color1_rgb, LabColor)
         self.distanceByCluster = {}
         for key, value in self.colorByCluster.iteritems():
