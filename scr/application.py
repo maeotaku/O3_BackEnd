@@ -6,6 +6,7 @@ import numpy as np
 import os
 import random
 import json
+import base64
 '''
 from Files import *
 from Label import *
@@ -37,17 +38,21 @@ app = application
 def do_upload():
     data = {}    
     try:
+        '''
         files = request.files
         for name in files:
             fileUpload = files[name]
-            if fileUpload:
-                #file = fileUpload.file
-                img = cv2.imdecode(getNPFromFile(fileUpload), cv2.CV_LOAD_IMAGE_UNCHANGED) # This is dangerous for big files
-                data["DamagePercentage"] = random.uniform(0,1)
-                #data["InjuryDetectedImage"] = Image.fromarray(img)
-                data["Height"] = len(img[0])
-                data["Width"] = len(img)
-                #s = SpeciesImage(None, img)
+        '''
+        incomingData = jsonify(request.get_json(force=True))
+        fileUpload = base64.decodestring(json.dumps(incomingData)['image'])
+        if fileUpload:
+            #file = fileUpload.file
+            img = cv2.imdecode(getNPFromFile(fileUpload), cv2.CV_LOAD_IMAGE_UNCHANGED) # This is dangerous for big files
+            data["damage_percentage"] = random.uniform(0,1)
+            #data["InjuryDetectedImage"] = Image.fromarray(img)
+            data["height"] = len(img[0])
+            data["width"] = len(img)
+            #s = SpeciesImage(None, img)
         json_data = json.dumps(data)
         return json_data
 

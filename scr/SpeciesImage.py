@@ -25,6 +25,7 @@ class SpeciesImage(object):
         self.colorByCluster = {}
         self.distanceByCluster = {}
         self.freqByCluster = {}
+        self.injuryByCluster = {}
         self.path = path
         if inputImg==None:
             self.originalSize = loadImage(path)
@@ -50,16 +51,39 @@ class SpeciesImage(object):
         #self.injuryMask = self.injuryMask *  255
         
         
-        self.superPixels(self.newRGB)
+        self.componentsImg = self.superPixels(self.newRGB)
         self.pixelDict = {}
         self.trainEMInjury()
-        self.getInjuryPixels()
-        #self.injuryMask = (self.resizedLeafImg > 100) * 255
+        self.injuryByCluster = self.getInjuryPixels()
+        #self.injuryMask = self.createInjuryMask(self.componentsImg);
+        
+        #self.resultImg = self.ApplyMaskToRGB(self.original, self.injuryMask, self.w, self.h)
+        self.resultImg = self.applyInjuryMask(self.componentsImg, self.original)
         
         #self.contoursImg = normalizeLeafArea(self.original, segmentContours, area, C.STANDARD_LEAF_AREA)
         #self.finalSegImg = normalizeLeafArea(self.segImg, segmentContours, area, C.STANDARD_LEAF_AREA)
     
+    #creates a mask for injuries of the leaf
+    def createInjuryMask(self, componentsImg):
+        h = self.h
+        w = self.w
+        mask = np.zeros((h,w), 'uint8')
+        for y in range(0, h):
+            for x in range(0, w):
+                if componentsImg[y,x] in self.injuryByCluster and self.injuryByCluster[componentsImg[y,x]]==True:
+                    mask[y,x] = 1
+        return mask
     
+    def applyInjuryMask(self, componentsImg, rgbImg):
+        h = self.h
+        w = self.w
+        newRGB = rgbImg.copy();
+        for y in range(0, h):
+            for x in range(0, w):
+                if componentsImg[y,x] in self.injuryByCluster and self.injuryByCluster[componentsImg[y,x]]==True:
+                    newRGB[y,x] = np.array([0,0,255])
+        return newRGB
+                
     
     def ApplyMaskToRGB(self, img, mask, w, h):
         #mask = mask + -1
@@ -81,7 +105,7 @@ class SpeciesImage(object):
 
     
     def superPixels(self, img):
-        segments = slic(img, n_segments = 50, sigma = 6, convert2lab = True)
+        segments = slic(img, n_segments = 50000, sigma = 6, convert2lab = True)
         #print(segments)
         #print(np.size(segments))
         # show the output of SLIC
@@ -118,7 +142,7 @@ class SpeciesImage(object):
             color2_lab = convert_color(color2_rgb, LabColor)
             self.distanceByCluster[key] = delta_e_cie2000(color1_lab, color2_lab);
         
-        
+        return segments
         
     
 
@@ -126,6 +150,7 @@ class SpeciesImage(object):
         showImage(self.original, "Original ")
         showImage(self.segImg, "Segmented Binary")
         showImage(self.resizedLeafImg, "Segmented ")
+        showImage(self.resultImg, "Injury detected Img ")
         #showImage(self.injuryMask, "Injuries ")
         
         #showImage(self.shadowLessImg, "Shadowless " + self.path)
@@ -211,7 +236,11 @@ class SpeciesImage(object):
         print("Predicting Injuries...")
         for key, sample in self.distanceByCluster.iteritems():
             self.predictInjury(sample, key)
+        '''
         print(self.pixelDict)
+        
         for value in self.pixelDict.values():
             if value==False:
                 print(value)
+        '''
+        return self.pixelDict
